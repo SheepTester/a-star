@@ -10,6 +10,7 @@
           ((equal? char #\.) 'space)
           ((equal? char #\o) 'start)
           ((equal? char #\*) 'finish)
+          ((equal? char #\x) 'explored)
           (else (error "Invalid character"))))
 
   ; returns the type of square
@@ -25,14 +26,16 @@
           ((equal? type 'space) #\.)
           ((equal? type 'start) #\o)
           ((equal? type 'finish) #\*)
+          ((equal? type 'explored) #\x)
           (else (error "Type cannot be converted to char"))))
 
   ; return tile colour as according to type
   (define (colour)
     (cond ((equal? type 'wall) (make-color 40 40 40))
-          ((equal? type 'space) (make-color 200 200 200))
+          ((equal? type 'space) (make-color 238 238 238))
           ((equal? type 'start) (make-color 2 253 182))
           ((equal? type 'finish) (make-color 253 72 2))
+          ((equal? type 'explored) (make-color 127 127 127))
           (else (error "Type does not have colour"))))
 
   ; allow methods to be accessed using (square-instance 'method-name)
