@@ -1,5 +1,6 @@
 #lang racket
 
+; needed to access make-color
 (require racket/draw)
 
 ; makes a square (either #, ., o, or *)
