@@ -54,7 +54,9 @@
           ((equal? method 'add!) add!)
           ((equal? method 'peek) peek)
           ((equal? method 'remove!) remove!)
-          (else (error "Method doesn't exist"))))
+          (else (error (string-append "Method "
+                                      (symbol->string method)
+                                      " doesn't exist")))))
   dispatch)
 
 (provide make-queue)
