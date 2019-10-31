@@ -1,6 +1,7 @@
 #lang racket/gui
 
 (require "./stack.rkt")
+(require "./queue.rkt")
 
 ; Make a frame by instantiating the frame% class
 (define frame (new frame% [label "Example"]))

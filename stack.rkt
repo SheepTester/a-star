@@ -35,3 +35,5 @@
           ((equal? method 'remove!) remove!)
           (else (error "Method doesn't exist"))))
   dispatch)
+
+(provide make-stack)
