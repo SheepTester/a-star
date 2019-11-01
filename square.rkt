@@ -44,7 +44,7 @@
           (else (error (string-append (symbol->string type)
                                       " doesn't have a colour")))))
   
-  ; reference to previous square in closest path
+  ; reference to previous square LOCATION in closest path
   (define previous-square #f)
 
   ; number of squares in closest path to this square
@@ -74,7 +74,7 @@
   ; allow methods to be accessed using (square-instance 'method-name)
   (define (dispatch method)
     (cond ((equal? method 'type) get-type)
-          ((equal? method 'set!) set-to!)
+          ((equal? method 'set-type!) set-to!)
           ((equal? method 'square->char) square->char)
           ((equal? method 'colour) colour)
           ((equal? method 'get) get-var)

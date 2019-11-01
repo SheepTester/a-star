@@ -1,24 +1,23 @@
 #lang racket
 
-; abstract some pair procedures for maximum readability
-(define point cons)
-(define px car)
-(define py cdr)
+(require "./point.rkt")
 
 (define (maze-solver maze agenda)
-  ((agenda 'add!) ((maze 'find-square) 'start))
+  ((agenda 'add!) (cons #f ((maze 'find-square) 'start)))
 
   ; return step procedure; it will return #f if it is not done
   ; or a lambda resolving to #t (reachable) or #f
   ; (too used to JS promises lol)
   (lambda ()
     (if ((agenda 'empty?)) (lambda () #f)
-        (let* ((loc ((agenda 'remove!)))
+        (let* ((entry ((agenda 'remove!)))
+               (loc (cdr entry))
                (square ((maze 'get-square) (px loc) (py loc))))
           (cond ((equal? ((square 'type)) 'explored) #f)
                 ((equal? ((square 'type)) 'finish)
-                 (lambda () #t))
+                 (lambda () (car entry)))
                 (else
+                 ((square 'set!) 'previous (car entry))
                  (for-each
                   (lambda (offset)
                     (when
@@ -30,10 +29,11 @@
                             'type))
                           'wall))
                       ((agenda 'add!)
-                       (point (+ (px loc) (px offset))
-                              (+ (py loc) (py offset))))))
+                       (cons loc
+                             (point (+ (px loc) (px offset))
+                                    (+ (py loc) (py offset)))))))
                   '((1 . 0) (-1 . 0) (0 . 1) (0 . -1)))
-                 ((square 'set!) 'explored)
+                 ((square 'set-type!) 'explored)
                  #f))))))
 
 (provide maze-solver)

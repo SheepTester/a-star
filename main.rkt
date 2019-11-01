@@ -4,6 +4,7 @@
 (require "./queue.rkt")
 (require "./maze.rkt")
 (require "./maze-solver.rkt")
+(require "./point.rkt")
 
 ; holds maze data (so it can restart without reloading)
 (define maze-data "#####
@@ -19,13 +20,18 @@
 ; name of solution type
 (define solution-mode "")
 
+; traceable path and its maze if found
+(define path #f)
+
 ; render maze
 (define square-size 20)
+(define dot-diameter 6)
 (define (render-maze canvas dc)
   ; set canvas size based on maze size
   (send canvas min-width (* ((maze 'width)) square-size))
   (send canvas min-height (* ((maze 'height)) square-size))
   ; set styles
+  (send dc clear)
   (send dc set-pen "white" 1 'transparent)
   (for ([y (in-naturals)]
         [row ((maze 'array))])
@@ -36,7 +42,22 @@
             (* x square-size)
             (* y square-size)
             square-size
-            square-size))))
+            square-size)))
+  (send dc set-brush (make-color 240 227 190) 'solid)
+  (define (iter prev-square)
+    (when prev-square
+      (let ((square
+             ((maze 'get-square) (px prev-square) (py prev-square))))
+        (send dc draw-ellipse
+              (+ (* (px prev-square) square-size)
+                 (/ (- square-size dot-diameter) 2))
+              (+ (* (py prev-square) square-size)
+                 (/ (- square-size dot-diameter) 2))
+              dot-diameter
+              dot-diameter)
+        (iter ((square 'get) 'previous)))))
+  (when (and path (equal? (cdr path) maze))
+    (iter (car path))))
 
 ; sets maze to the parsed maze data from the given file path
 (define (load-from file-name)
@@ -51,16 +72,19 @@
 ; when step button is called
 (define (run-step)
   (when step
-            (let ((result (step)))
-              (send status set-label
-                    (if result
-                        (begin
-                          (set! step #f)
-                          (if (result)
-                            "Solution complete: finish reachable"
-                            "Solution complete: finish not reachable"))
-                        (string-append solution-mode " in progress")))
-              (send canvas on-paint))))
+    (let ((result (step)))
+      (send status set-label
+            (if result
+                (let ((traceable-path (result)))
+                  (set! step #f)
+                  (set! path (cons traceable-path maze))
+                  ; NOTE: make sure this is the last statement
+                  ; here so it returns a string
+                  (if traceable-path
+                      "Solution complete: finish reachable"
+                      "Solution complete: finish not reachable"))
+                (string-append solution-mode " in progress")))
+      (send canvas on-paint))))
 
 ; make new frame
 (define frame
