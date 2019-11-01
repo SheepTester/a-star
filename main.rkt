@@ -5,10 +5,13 @@
 (require "./maze.rkt")
 (require "./maze-solver.rkt")
 
-; holds default maze
-(define maze (make-maze "#####
+; holds maze data (so it can restart without reloading)
+(define maze-data "#####
 #o.*#
-#####"))
+#####")
+
+; holds default maze
+(define maze (make-maze maze-data))
 
 ; stepping procedure (if available)
 (define step #f)
@@ -37,11 +40,11 @@
 
 ; sets maze to the parsed maze data from the given file path
 (define (load-from file-name)
-  (set! maze
-        (make-maze
-         (port->string
-          (open-input-file file-name #:mode 'text)
-          #:close? #t)))
+  (set! maze-data
+        (port->string
+         (open-input-file file-name #:mode 'text)
+         #:close? #t))
+  (set! maze (make-maze maze-data))
   (send status set-label "Loaded maze.")
   (send canvas on-paint))
 
@@ -63,13 +66,6 @@
 (define frame
   (new frame%
        [label "Maze"]))
-
-; make status text
-(define status
-  (new message%
-       [parent frame]
-       [label "Default maze"]
-       [auto-resize #t]))
 
 ; make new text field for maze file name
 (define text-field
@@ -93,6 +89,7 @@
        [label "Start (stack)"]
        [callback
         (lambda (button event)
+          (set! maze (make-maze maze-data))
           (set! step (maze-solver maze (make-stack)))
           (set! solution-mode "Stack-based solution")
           (run-step))]))
@@ -104,6 +101,7 @@
        [label "Start (queue)"]
        [callback
         (lambda (button event)
+          (set! maze (make-maze maze-data))
           (set! step (maze-solver maze (make-queue)))
           (set! solution-mode "Queue-based solution")
           (run-step))]))
@@ -122,9 +120,11 @@
 (define toggle-anim-btn
   (new button%
        [parent frame]
-       [label "Toggle animation"]
+       [label "Enable animation"]
        [callback
         (lambda (button event)
+          (send toggle-anim-btn set-label
+                (if timer "Enable animation" "Disable animation"))
           (if timer
               (begin
                 (send timer stop)
@@ -133,6 +133,13 @@
                                [notify-callback run-step]
                                [interval 50]
                                [just-once? #f]))))]))
+
+; make status text
+(define status
+  (new message%
+       [parent frame]
+       [label "Default maze"]
+       [auto-resize #t]))
 
 ; make canvas where the maze will be rendered
 (define canvas
