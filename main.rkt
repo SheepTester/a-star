@@ -33,6 +33,7 @@
   ; set styles
   (send dc clear)
   (send dc set-pen "white" 1 'transparent)
+  ; render maze
   (for ([y (in-naturals)]
         [row ((maze 'array))])
     (for ([x (in-naturals)]
@@ -43,6 +44,7 @@
             (* y square-size)
             square-size
             square-size)))
+  ; render path dots (if it exists)
   (send dc set-brush (make-color 240 227 190) 'solid)
   (define (iter prev-square)
     (when prev-square
