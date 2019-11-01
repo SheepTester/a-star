@@ -30,7 +30,8 @@
           ((equal? type 'finish) #\*)
           ((equal? type 'explored) #\x)
           ((equal? type 'teleport) #\@)
-          (else (error "Type cannot be converted to char"))))
+          (else (error (string-append (string char)
+                                      " doesn't represent a square.")))))
 
   ; return tile colour as according to type
   (define (colour)
@@ -40,7 +41,35 @@
           ((equal? type 'finish) (make-color 253 72 2))
           ((equal? type 'explored) (make-color 127 127 127))
           ((equal? type 'teleport) (make-color 111 91 198))
-          (else (error "Type does not have colour"))))
+          (else (error (string-append (symbol->string type)
+                                      " doesn't have a colour")))))
+  
+  ; reference to previous square in closest path
+  (define previous-square #f)
+
+  ; number of squares in closest path to this square
+  (define dist-to-me +inf.0)
+
+  ; estimated "goodness" to finish
+  (define goodness +inf.0)
+
+  ; get/set miscellaneous attributes (implementation as such for I am lazy)
+  (define (get-var name)
+    (cond ((equal? name 'previous) previous-square)
+          ((equal? name 'dist) dist-to-me)
+          ((equal? name 'goodness) goodness)
+          (else (error (string-append "I don't have a "
+                                      (symbol->string name))))))
+  (define (set-var! name value)
+    (cond ((equal? name 'previous) (set! previous-square value))
+          ((equal? name 'dist) (set! dist-to-me value))
+          ((equal? name 'goodness) (set! goodness value))
+          (else (error (string-append "I can't set a nonexistent "
+                                      (symbol->string name))))))
+
+  ; estimates helpfulness of this square based on how close
+  ; the path through this square would be
+  (define (helpfulness) (+ dist-to-me goodness))
 
   ; allow methods to be accessed using (square-instance 'method-name)
   (define (dispatch method)
@@ -48,6 +77,9 @@
           ((equal? method 'set!) set-to!)
           ((equal? method 'square->char) square->char)
           ((equal? method 'colour) colour)
+          ((equal? method 'get) get-var)
+          ((equal? method 'set!) set-var!)
+          ((equal? method 'helpfulness) 'helpfulness)
           (else (error (string-append "Method "
                                       (symbol->string method)
                                       " doesn't exist")))))
