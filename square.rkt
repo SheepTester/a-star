@@ -12,6 +12,7 @@
           ((equal? char #\o) 'start)
           ((equal? char #\*) 'finish)
           ((equal? char #\x) 'explored)
+          ((equal? char #\@) 'teleport)
           (else (error "Invalid character"))))
 
   ; returns the type of square
@@ -28,6 +29,7 @@
           ((equal? type 'start) #\o)
           ((equal? type 'finish) #\*)
           ((equal? type 'explored) #\x)
+          ((equal? type 'teleport) #\@)
           (else (error "Type cannot be converted to char"))))
 
   ; return tile colour as according to type
@@ -37,6 +39,7 @@
           ((equal? type 'start) (make-color 2 253 182))
           ((equal? type 'finish) (make-color 253 72 2))
           ((equal? type 'explored) (make-color 127 127 127))
+          ((equal? type 'teleport) (make-color 111 91 198))
           (else (error "Type does not have colour"))))
 
   ; allow methods to be accessed using (square-instance 'method-name)
