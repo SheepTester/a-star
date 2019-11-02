@@ -90,30 +90,38 @@
                 (string-append solution-mode " in progress")))
       (send canvas on-paint))))
 
+; ---- GUI stuff ----
+
 ; make new frame
 (define frame
   (new frame%
        [label "Maze"]))
 
+; wrapper for loading file
+(define load-row (new horizontal-panel% [parent frame]))
+
 ; make new text field for maze file name
 (define text-field
   (new text-field%
-       [parent frame]
+       [parent load-row]
        [label "Maze data file name"]))
 
 ; make load button
 (define load-btn
   (new button%
-       [parent frame]
+       [parent load-row]
        [label "Load"]
        [callback
         (lambda (button event)
           (load-from (send text-field get-value)))]))
 
+; wrapper for the stack/queue buttons
+(define solver-row (new horizontal-panel% [parent frame]))
+
 ; start (stack) button: uses a stack to determine whether there's a path to finish
 (define start-stack-btn
   (new button%
-       [parent frame]
+       [parent solver-row]
        [label "Start (stack)"]
        [callback
         (lambda (button event)
@@ -125,7 +133,7 @@
 ; start (queue) button: uses a queue to determine whether there's a path to finish
 (define start-queue-btn
   (new button%
-       [parent frame]
+       [parent solver-row]
        [label "Start (queue)"]
        [callback
         (lambda (button event)
@@ -134,11 +142,14 @@
           (set! solution-mode "Queue-based solution")
           (run-step))]))
 
+; wrapper for the A* buttons
+(define a-start-row (new horizontal-panel% [parent frame]))
+
 ; zero button: uses A* but with h(X) = 0
 ; so it's basically as good as one of the above two
 (define zero-btn
   (new button%
-       [parent frame]
+       [parent a-start-row]
        [label "Zero"]
        [callback
         (lambda (button event)
@@ -151,7 +162,7 @@
 ; THAT IS, it uses euclidean distance (pythagorean theorem)
 (define euclidean-btn
   (new button%
-       [parent frame]
+       [parent a-start-row]
        [label "Euclidean"]
        [callback
         (lambda (button event)
@@ -169,7 +180,7 @@
 ; THAT IS, it uses manhattan distance
 (define manhattan-btn
   (new button%
-       [parent frame]
+       [parent a-start-row]
        [label "Manhattan"]
        [callback
         (lambda (button event)
@@ -187,7 +198,7 @@
 ; so it can only see up to a certain distance, simulating a "proximity sensor"
 (define proximity-btn
   (new button%
-       [parent frame]
+       [parent a-start-row]
        [label "Proximity"]
        [callback
         (lambda (button event)
@@ -202,10 +213,13 @@
           (set! solution-mode "A* with h(X) = M(X) but only up to 8")
           (run-step))]))
 
+; wrapper for the playback buttons
+(define playback-row (new horizontal-panel% [parent frame]))
+
 ; make step button
 (define step-btn
   (new button%
-       [parent frame]
+       [parent playback-row]
        [label "Step"]
        [callback (lambda (button event) (run-step))]))
 
@@ -215,7 +229,7 @@
 ; make toggle animation button
 (define toggle-anim-btn
   (new button%
-       [parent frame]
+       [parent playback-row]
        [label "Enable animation"]
        [callback
         (lambda (button event)
