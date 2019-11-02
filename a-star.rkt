@@ -48,6 +48,36 @@
                ; the number of squares to one of its neighbours
                ; through this square
                (dist-to-next (+ ((square 'get) 'dist) 1)))
+          
+          ; considers an adjacent square for being one of the
+          ; next squares
+          (define (consider-next x y)
+            (let ((next-square ((maze 'get-square) x y)))
+              ; is it a valid path square?
+              (when (and (not (equal? ((next-square 'type))
+                                      'wall))
+                         ; is this the fastest way to
+                         ; get to this square (so far?)
+                         (< dist-to-next
+                            ((next-square 'get) 'dist)))
+                ; refer to current square's location for path
+                ; retracing
+                ((next-square 'set!) 'previous loc)
+                ; remember how long it takes to get here
+                ; this way
+                ((next-square 'set!) 'dist dist-to-next)
+                ; if this square isn't already going to be
+                ; processed
+                (when (not (member next-square agenda))
+                  ; make sure its goodness has been calculated
+                  ; (for determining closeless: f score)
+                  ((next-square 'set!) 'goodness
+                                       (goodness-fn x y))
+                  ; add location to agenda
+                  (set! agenda
+                        (cons (point x y)
+                              agenda))))))
+          
           ; remove this square from agenda
           (set! agenda (cdr moved-list))
           ; if we've reached finish, it's supposed to be the
@@ -60,40 +90,14 @@
                 ; for each adjacent square
                 (for-each
                  (lambda (offset)
-                   ; get the square
-                   (let ((next-square ((maze 'get-square)
-                                       (+ (px loc) (px offset))
-                                       (+ (py loc) (py offset)))))
-                     ; is it a valid path square?
-                     (when (and (not (equal? ((next-square 'type))
-                                             'wall))
-                                ; is this the fastest way to
-                                ; get to this square (so far?)
-                                (< dist-to-next
-                                   ((next-square 'get) 'dist)))
-                       ; refer to current square's location for path
-                       ; retracing
-                       ((next-square 'set!) 'previous loc)
-                       ; remember how long it takes to get here
-                       ; this way
-                       ((next-square 'set!) 'dist dist-to-next)
-                       ; if this square isn't already going to be
-                       ; processed
-                       (when (not (member next-square agenda))
-                         ; make sure its goodness has been calculated
-                         ; (for determining closeless: f score)
-                         ((next-square 'set!) 'goodness
-                                              (goodness-fn
-                                               (+ (px loc) (px offset))
-                                               (+ (py loc) (py offset))))
-                         ; add location to agenda
-                         (set! agenda
-                               (cons (point (+ (px loc) (px offset))
-                                            (+ (py loc) (py offset)))
-                                     agenda))))))
-                   '((1 . 0) (-1 . 0) (0 . 1) (0 . -1)))
-                 ; return false to let the caller know it is not done
-                 #f))))))
+                   (consider-next (+ (px loc) (px offset))
+                                  (+ (py loc) (py offset))))
+                 '((1 . 0) (-1 . 0) (0 . 1) (0 . -1)))
+                ; also consider the complementary teleporter
+                (when (equal? ((square 'type)) 'teleport)
+                  (let ((next-loc ((square 'get) 'complement)))
+                    (consider-next (px next-loc) (py next-loc))))
+                ; return false to let the caller know it is not done
+                #f))))))
 
-  (provide a-star)
-  
+(provide a-star)
