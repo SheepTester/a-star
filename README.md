@@ -1,6 +1,6 @@
 # Scheme is not useless!
 
-![A maze being completed by means of epic A\*](./epic-screenshot.png)
+<img src="./epic-screenshot.png" alt="A maze being completed by means of epic A*" height="500">
 
 An epic program written in Racket (close enough to Scheme, and I'm not 20th century enough to know the difference) that either [makes sure there's a way to get to the end](http://nifty.stanford.edu/2008/blaheta-maze/cs2/index.html) or [actually finds the closest path to it](http://nifty.stanford.edu/2008/blaheta-maze/a-star/index.html).
 
