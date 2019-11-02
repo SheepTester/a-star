@@ -77,8 +77,25 @@
          (open-input-file file-name #:mode 'text)
          #:close? #t))
   (set! maze (make-maze maze-data))
+  (complement-teleporters)
   (send status set-label "Loaded maze.")
   (send canvas on-paint))
+
+; sets complements of teleporters in maze;
+; in case there's more than 2 teleporters, one will just point
+; to the next arbitrarily
+(define (complement-teleporters)
+  (let ((teleporters ((maze 'find-squares) 'teleport)))
+    (define (iter next-tps)
+      (let* ((next-tp (car next-tps))
+             (square ((maze 'get-square) (px next-tp) (py next-tp))))
+        (if (null? (cdr next-tps))
+            ((square 'set!) 'complement (car teleporters))
+            (begin
+              ((square 'set!) 'complement (cadr next-tps))
+              (iter (cdr next-tps))))))
+    (when (not (null? teleporters))
+      (iter teleporters))))
 
 ; when step button is called
 (define (run-step)
@@ -133,6 +150,7 @@
        [callback
         (lambda (button event)
           (set! maze (make-maze maze-data))
+          (complement-teleporters)
           (set! step (maze-solver maze (make-stack)))
           (set! solution-mode "Stack-based solution")
           (run-step))]))
@@ -145,6 +163,7 @@
        [callback
         (lambda (button event)
           (set! maze (make-maze maze-data))
+          (complement-teleporters)
           (set! step (maze-solver maze (make-queue)))
           (set! solution-mode "Queue-based solution")
           (run-step))]))
@@ -161,6 +180,7 @@
        [callback
         (lambda (button event)
           (set! maze (make-maze maze-data))
+          (complement-teleporters)
           (set! step (a-star maze (lambda (x y) 0)))
           (set! solution-mode "A* with h(X) = 0")
           (run-step))]))
@@ -174,6 +194,7 @@
        [callback
         (lambda (button event)
           (set! maze (make-maze maze-data))
+          (complement-teleporters)
           (define finish-loc ((maze 'find-square) 'finish))
           (set! step
                 (a-star maze
@@ -192,6 +213,7 @@
        [callback
         (lambda (button event)
           (set! maze (make-maze maze-data))
+          (complement-teleporters)
           (define finish-loc ((maze 'find-square) 'finish))
           (set! step
                 (a-star maze
@@ -210,6 +232,7 @@
        [callback
         (lambda (button event)
           (set! maze (make-maze maze-data))
+          (complement-teleporters)
           (define finish-loc ((maze 'find-square) 'finish))
           (set! step
                 (a-star maze

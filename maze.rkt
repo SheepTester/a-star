@@ -1,6 +1,7 @@
 #lang racket
 
 (require "./square.rkt")
+(require "./point.rkt")
 
 (define (make-maze str)
   ; 2D list of all the squares
@@ -59,11 +60,18 @@
 
   ; finds all locations of squares with the given type
   (define (find-squares type)
-    (append* (map (lambda (row)
-                    (filter (lambda (square)
-                              (equal? ((square 'type)) type))
-                            row))
-                  array)))
+    (define (iter x y row rows locs)
+      (if (null? row)
+          (if (null? rows) locs
+              (iter 0 (+ y 1) (car rows) (cdr rows) locs))
+          (iter (+ x 1)
+                y
+                (cdr row)
+                rows
+                (if (equal? (((car row) 'type)) type)
+                    (cons (point x y) locs)
+                    locs))))
+    (iter 0 0 (car array) (cdr array) '()))
 
   ; allow methods to be accessed using (maze-instance 'method-name)
   (define (dispatch method)
