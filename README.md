@@ -2,9 +2,11 @@
 
 An epic program written in Racket (close enough to Scheme, and I'm not 20th century enough to know the difference) that either [makes sure there's a way to get to the end](http://nifty.stanford.edu/2008/blaheta-maze/cs2/index.html) or [actually finds the closest path to it](http://nifty.stanford.edu/2008/blaheta-maze/a-star/index.html).
 
+If you don't know how to run this, download this repository as a .zip, unzip the file, open `main.rkt` in [DrRacket](https://racket-lang.org/), and click the Run button with the green play icon triangle.
+
 ## What do they do?
 
-**main.rkt** creates the GUI, loads the maze file, renders the maze, and calls the step procedure for the two maze solvers.
+**main.rkt (run this!)** creates the GUI, loads the maze file, renders the maze, and calls the step procedure for the two maze solvers.
 
 **maze-solver.rkt** provides a maze explorer using either a queue or a stack to see if the end can be reached.
 
