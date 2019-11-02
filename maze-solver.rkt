@@ -18,21 +18,23 @@
                  (lambda () (car entry)))
                 (else
                  ((square 'set!) 'previous (car entry))
-                 (for-each
-                  (lambda (offset)
-                    (when
+                 (define (consider-next x y)
+                   (when
                         (not
                          (equal?
-                          ((((maze 'get-square)
-                             (+ (px loc) (px offset))
-                             (+ (py loc) (py offset)))
+                          ((((maze 'get-square) x y)
                             'type))
                           'wall))
                       ((agenda 'add!)
-                       (cons loc
-                             (point (+ (px loc) (px offset))
-                                    (+ (py loc) (py offset)))))))
+                       (cons loc (point x y)))))
+                 (for-each
+                  (lambda (offset)
+                    (consider-next (+ (px loc) (px offset))
+                                   (+ (py loc) (py offset))))
                   '((1 . 0) (-1 . 0) (0 . 1) (0 . -1)))
+                 (when (equal? ((square 'type)) 'teleport)
+                   (let ((next-loc ((square 'get) 'complement)))
+                    (consider-next (px next-loc) (py next-loc))))
                  ((square 'set!) 'explored #t)
                  #f))))))
 
