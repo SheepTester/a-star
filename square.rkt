@@ -67,9 +67,9 @@
           (else (error (string-append "I can't set a nonexistent "
                                       (symbol->string name))))))
 
-  ; estimates helpfulness of this square based on how close
+  ; estimates closeness of this square based on how close
   ; the path through this square would be
-  (define (helpfulness) (+ dist-to-me goodness))
+  (define (closeness) (+ dist-to-me goodness))
 
   ; allow methods to be accessed using (square-instance 'method-name)
   (define (dispatch method)
@@ -79,7 +79,7 @@
           ((equal? method 'colour) colour)
           ((equal? method 'get) get-var)
           ((equal? method 'set!) set-var!)
-          ((equal? method 'helpfulness) 'helpfulness)
+          ((equal? method 'closeness) 'closeness)
           (else (error (string-append "Method "
                                       (symbol->string method)
                                       " doesn't exist")))))
