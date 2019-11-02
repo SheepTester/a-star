@@ -5,6 +5,8 @@
 (require "./maze.rkt")
 (require "./maze-solver.rkt")
 (require "./point.rkt")
+(require "./a-star.rkt")
+(require "./square-num.rkt")
 
 ; holds maze data (so it can restart without reloading)
 (define maze-data "#####
@@ -108,7 +110,7 @@
         (lambda (button event)
           (load-from (send text-field get-value)))]))
 
-; make start (stack) button
+; start (stack) button: uses a stack to determine whether there's a path to finish
 (define start-stack-btn
   (new button%
        [parent frame]
@@ -120,7 +122,7 @@
           (set! solution-mode "Stack-based solution")
           (run-step))]))
 
-; make start (queue) button
+; start (queue) button: uses a queue to determine whether there's a path to finish
 (define start-queue-btn
   (new button%
        [parent frame]
@@ -130,6 +132,74 @@
           (set! maze (make-maze maze-data))
           (set! step (maze-solver maze (make-queue)))
           (set! solution-mode "Queue-based solution")
+          (run-step))]))
+
+; zero button: uses A* but with h(X) = 0
+; so it's basically as good as one of the above two
+(define zero-btn
+  (new button%
+       [parent frame]
+       [label "Zero"]
+       [callback
+        (lambda (button event)
+          (set! maze (make-maze maze-data))
+          (set! step (a-star maze (lambda (x y) 0)))
+          (set! solution-mode "A* with h(X) = 0")
+          (run-step))]))
+
+; euclidean button: uses A* with h(X) = E(X)
+; THAT IS, it uses euclidean distance (pythagorean theorem)
+(define euclidean-btn
+  (new button%
+       [parent frame]
+       [label "Euclidean"]
+       [callback
+        (lambda (button event)
+          (set! maze (make-maze maze-data))
+          (define finish-loc ((maze 'find-square) 'finish))
+          (set! step
+                (a-star maze
+                        (lambda (x y)
+                          (sqrt (+ (square (- (px finish-loc) x))
+                                   (square (- (py finish-loc) y)))))))
+          (set! solution-mode "A* with h(X) = E(X)")
+          (run-step))]))
+
+; manhattan button: uses A* with h(X) = M(X)
+; THAT IS, it uses manhattan distance
+(define manhattan-btn
+  (new button%
+       [parent frame]
+       [label "Manhattan"]
+       [callback
+        (lambda (button event)
+          (set! maze (make-maze maze-data))
+          (define finish-loc ((maze 'find-square) 'finish))
+          (set! step
+                (a-star maze
+                        (lambda (x y)
+                          (+ (abs (- (px finish-loc) x))
+                             (abs (- (py finish-loc) y))))))
+          (set! solution-mode "A* with h(X) = M(X)")
+          (run-step))]))
+
+; proximity button: uses A* with h(X) = M(X) < 8 ? M(X) : 8
+; so it can only see up to a certain distance, simulating a "proximity sensor"
+(define proximity-btn
+  (new button%
+       [parent frame]
+       [label "Proximity"]
+       [callback
+        (lambda (button event)
+          (set! maze (make-maze maze-data))
+          (define finish-loc ((maze 'find-square) 'finish))
+          (set! step
+                (a-star maze
+                        (lambda (x y)
+                          (min (+ (abs (- (px finish-loc) x))
+                                  (abs (- (py finish-loc) y)))
+                               8))))
+          (set! solution-mode "A* with h(X) = M(X) but only up to 8")
           (run-step))]))
 
 ; make step button

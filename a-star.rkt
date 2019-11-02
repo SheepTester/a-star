@@ -28,7 +28,7 @@
   (define start-loc ((maze 'find-square) 'start))
   (define agenda (list start-loc))
   (let ((start ((maze 'get-square) (px start-loc) (py start-loc))))
-    ((start 'set!) 'dist-to-me 0)
+    ((start 'set!) 'dist 0)
     ((start 'set!) 'goodness
                    (goodness-fn (px start-loc) (py start-loc))))
 
@@ -47,7 +47,7 @@
                (square ((maze 'get-square) (px loc) (py loc)))
                ; the number of squares to one of its neighbours
                ; through this square
-               (dist-to-next (+ ((square 'get) 'dist-to-me) 1)))
+               (dist-to-next (+ ((square 'get) 'dist) 1)))
           ; remove this square from agenda
           (set! agenda (cdr moved-list))
           ; if we've reached finish, it's supposed to be the
@@ -55,6 +55,8 @@
           (if (equal? ((square 'type)) 'finish)
               (lambda () loc)
               (begin
+                ; mark the square visually explored
+                ((square 'set-type!) 'explored)
                 ; for each adjacent square
                 (for-each
                  (lambda (offset)
@@ -64,17 +66,17 @@
                                        (+ (py loc) (py offset)))))
                      ; is it a valid path square?
                      (when (and (not (equal? ((next-square 'type))
-                                              'wall))
+                                             'wall))
                                 ; is this the fastest way to
                                 ; get to this square (so far?)
                                 (< dist-to-next
-                                   ((next-square 'get) 'dist-to-me)))
+                                   ((next-square 'get) 'dist)))
                        ; refer to current square's location for path
                        ; retracing
                        ((next-square 'set!) 'previous loc)
                        ; remember how long it takes to get here
                        ; this way
-                       ((next-square 'set!) 'dist-to-me dist-to-next)
+                       ((next-square 'set!) 'dist dist-to-next)
                        ; if this square isn't already going to be
                        ; processed
                        (when (not (member next-square agenda))
@@ -84,10 +86,14 @@
                                               (goodness-fn
                                                (+ (px loc) (px offset))
                                                (+ (py loc) (py offset))))
-                         ; add to agenda
-                         (set! agenda (cons next-square agenda))))))
-                 '((1 . 0) (-1 . 0) (0 . 1) (0 . -1)))
-                ; return false to let the caller know it is not done
-                #f))))))
+                         ; add location to agenda
+                         (set! agenda
+                               (cons (point (+ (px loc) (px offset))
+                                            (+ (py loc) (py offset)))
+                                     agenda))))))
+                   '((1 . 0) (-1 . 0) (0 . 1) (0 . -1)))
+                 ; return false to let the caller know it is not done
+                 #f))))))
 
-(provide a-star)
+  (provide a-star)
+  

@@ -79,7 +79,7 @@
           ((equal? method 'colour) colour)
           ((equal? method 'get) get-var)
           ((equal? method 'set!) set-var!)
-          ((equal? method 'closeness) 'closeness)
+          ((equal? method 'closeness) closeness)
           (else (error (string-append "Method "
                                       (symbol->string method)
                                       " doesn't exist")))))
