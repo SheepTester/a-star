@@ -57,6 +57,14 @@
                    row-pos)))))
       (if y (cons x y) #f)))
 
+  ; finds all locations of squares with the given type
+  (define (find-squares type)
+    (append* (map (lambda (row)
+                    (filter (lambda (square)
+                              (equal? ((square 'type)) type))
+                            row))
+                  array)))
+
   ; allow methods to be accessed using (maze-instance 'method-name)
   (define (dispatch method)
     (cond ((equal? method 'array) get-array)
@@ -65,6 +73,7 @@
           ((equal? method 'width) width)
           ((equal? method 'height) height)
           ((equal? method 'find-square) find-square)
+          ((equal? method 'find-squares) find-squares)
           (else (error (string-append "Method "
                                       (symbol->string method)
                                       " doesn't exist")))))
