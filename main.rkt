@@ -128,7 +128,12 @@
 (define text-field
   (new text-field%
        [parent load-row]
-       [label "Maze data file name"]))
+       [label "Maze data file name"]
+       [callback
+        (lambda (field event)
+          (when (equal? (send event get-event-type) 'text-field-enter)
+            (load-from (send text-field get-value))))]))
+(send text-field focus)
 
 ; make load button
 (define load-btn
