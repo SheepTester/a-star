@@ -13,7 +13,7 @@
         (let* ((entry ((agenda 'remove!)))
                (loc (cdr entry))
                (square ((maze 'get-square) (px loc) (py loc))))
-          (cond ((equal? ((square 'type)) 'explored) #f)
+          (cond (((square 'get) 'explored) #f)
                 ((equal? ((square 'type)) 'finish)
                  (lambda () (car entry)))
                 (else
@@ -33,7 +33,7 @@
                              (point (+ (px loc) (px offset))
                                     (+ (py loc) (py offset)))))))
                   '((1 . 0) (-1 . 0) (0 . 1) (0 . -1)))
-                 ((square 'set-type!) 'explored)
+                 ((square 'set!) 'explored #t)
                  #f))))))
 
 (provide maze-solver)

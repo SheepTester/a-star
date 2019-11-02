@@ -45,7 +45,14 @@
             (* x square-size)
             (* y square-size)
             square-size
-            square-size)))
+            square-size)
+      (when ((square 'get) 'explored)
+        (send dc set-brush (make-color 0 0 0 0.5) 'solid)
+        (send dc draw-rectangle
+              (* x square-size)
+              (* y square-size)
+              square-size
+              square-size))))
   ; render path dots (if it exists)
   (send dc set-brush (make-color 240 227 190) 'solid)
   (define (iter prev-square)

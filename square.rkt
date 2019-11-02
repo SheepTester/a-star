@@ -28,7 +28,6 @@
           ((equal? type 'space) #\.)
           ((equal? type 'start) #\o)
           ((equal? type 'finish) #\*)
-          ((equal? type 'explored) #\x)
           ((equal? type 'teleport) #\@)
           (else (error (string-append (string char)
                                       " doesn't represent a square.")))))
@@ -39,7 +38,6 @@
           ((equal? type 'space) (make-color 238 238 238))
           ((equal? type 'start) (make-color 2 253 182))
           ((equal? type 'finish) (make-color 253 72 2))
-          ((equal? type 'explored) (make-color 127 127 127))
           ((equal? type 'teleport) (make-color 111 91 198))
           (else (error (string-append (symbol->string type)
                                       " doesn't have a colour")))))
@@ -53,17 +51,27 @@
   ; estimated "goodness" to finish
   (define goodness +inf.0)
 
+  ; whether the square has been explored
+  (define explored #f)
+
+  ; location of complementary teleporter (if teleporter)
+  (define complement #f)
+
   ; get/set miscellaneous attributes (implementation as such for I am lazy)
   (define (get-var name)
     (cond ((equal? name 'previous) previous-square)
           ((equal? name 'dist) dist-to-me)
           ((equal? name 'goodness) goodness)
+          ((equal? name 'explored) explored)
+          ((equal? name 'complement) complement)
           (else (error (string-append "I don't have a "
                                       (symbol->string name))))))
   (define (set-var! name value)
     (cond ((equal? name 'previous) (set! previous-square value))
           ((equal? name 'dist) (set! dist-to-me value))
           ((equal? name 'goodness) (set! goodness value))
+          ((equal? name 'explored) (set! explored value))
+          ((equal? name 'complement) (set! complement value))
           (else (error (string-append "I can't set a nonexistent "
                                       (symbol->string name))))))
 

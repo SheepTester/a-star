@@ -78,6 +78,8 @@
                         (cons (point x y)
                               agenda))))))
           
+          ; mark the square as visually explored
+          ((square 'set!) 'explored #t)
           ; remove this square from agenda
           (set! agenda (cdr moved-list))
           ; if we've reached finish, it's supposed to be the
@@ -85,8 +87,6 @@
           (if (equal? ((square 'type)) 'finish)
               (lambda () loc)
               (begin
-                ; mark the square visually explored
-                ((square 'set-type!) 'explored)
                 ; for each adjacent square
                 (for-each
                  (lambda (offset)
